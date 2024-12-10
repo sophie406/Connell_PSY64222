@@ -1,0 +1,189 @@
+---
+title: "Analysis of Alcohol-Specific Deaths in England"
+author: "Sophie Connell"
+date: "2024-12-06"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+# Global chunk options
+knitr::opts_chunk$set(
+  echo = FALSE,        # Do not show code by default
+  message = FALSE,     # Suppress messages
+  warning = FALSE      # Suppress warnings
+)
+
+```
+
+## Data Origins
+
+This data set was obtained from the Office for National Statistics from the dataset Alcohol-specific deaths in the UK. This data set contained multiple different tables of data; I chose to use Table 2, which focuses on age-standardised alcohol-specific death rates per 100,000 population by sex in England from 2001 to 2022. The data in this dataset is collected from information supplied when deaths are certified and registered as part of civil registration. Person's number of deaths refers to the total of both male and female deaths.
+
+```{r load-data, echo=FALSE}
+# Load the dataset
+raw_data <- read.csv("/Users/sophieconnell/Desktop/coding/Alcoholdeath.csv")
+# Load required libraries
+library(knitr)
+library(kableExtra)
+
+# Display the first 10 rows of the dataset
+kable(head(raw_data, 10), caption = "First 10 Rows of Alcohol-Specific Deaths Data") %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"))
+```
+
+## Research Question
+
+My visualisation will focus on answering whether there has been an increase in alcoholic deaths in England, and try to see if there could be a correlation with the COVID-19 pandemic.
+
+## Data Preparation
+
+To prepare my data I cleaned it up and got rid of columns that I wasn’t interested in
+
+```{r load-data-unique, echo=FALSE}
+# Load the dataset
+raw_data <- read.csv("/Users/sophieconnell/Desktop/coding/sophieconnell_psy64222/data/dataset.csv")
+
+# Load required libraries
+library(knitr)
+library(kableExtra)
+
+# Display the first 10 rows of the dataset with formatting
+kable(head(raw_data, 10), caption = "First 10 Rows of Alcohol-Specific Deaths Data") %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"))
+```
+
+## Visualisations
+
+#### Graph 1
+
+For the first visualisation, I wanted to give a clear demonstration of the death rates from alcohol throughout the years 2002-2022, using a line graph.
+
+``` r
+# Create the line graph
+ggplot(data, aes(x = Year)) +
+  
+# Line for the trend of deaths with a label in the legend
+geom_line(aes(y = PersonsDeaths, color = "Trend Line"), size = 1.5) +
+
+# Points for individual data values with a label in the legend
+geom_point(aes(y = PersonsDeaths, color = "Data Points"), size = 4) +
+  
+# Custom labels for the axes and title
+labs(
+  title = "Alcohol-Specific Deaths in the UK (2002-2022)",
+  x = "Year",
+  y = "Number of Deaths",
+  color = "Legend" # Title of the legend
+  ) +
+  
+# Show every year on the x-axis
+scale_x_continuous(breaks = seq(2002, 2022, by = 1)) +
+
+# Y-axis breaks in increments of 500, with limits
+scale_y_continuous(
+ limits = c(4000, 8000),
+ breaks = seq(4000, 8000, by = 500)
+  ) +
+# Making it look nice
+scale_color_manual(
+  values = c("Trend Line" = "darkgreen", "Data Points" = "pink")
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_line(color = "grey", linetype = "dashed"), # Green gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, color = "darkgreen"), # Purple title
+    axis.title.x = element_text(size = 14, face = "bold", color = "darkgreen"), # Purple x-axis label
+    axis.title.y = element_text(size = 14, face = "bold", color = "darkgreen"), # Purple y-axis label
+    axis.text.x = element_text(size = 12, color = "darkgreen"), # Purple x-axis ticks
+    axis.text.y = element_text(size = 12, color = "darkgreen"), # Purple y-axis ticks
+    legend.position = "bottom", # Move the legend to the bottom
+    legend.title = element_text(size = 12, face = "bold"), # Style the legend title
+    legend.text = element_text(size = 10) # Style the legend text
+  )
+```
+![Graph of Alcohol-Specific Deaths](/Users/sophieconnell/Desktop/coding/sophieconnell_psy64222/graphs/Linegraph.png)
+
+This visualisation helps clearly portray how there has been a gradual increase over the past 20 years, using a line of trend and points for individual data values to help with clarity.
+
+#### Graph 2
+
+To try and portray the drastic difference even more, I decided to created a bar chart, showing death rates from alcohol in 2002, and in 2022.
+
+``` r
+# Simple bar chart to show the difference of total deaths from alcohol in 2002 and 2022
+
+# Filtering the data for the years 2002 and 2022
+bar_data <- data[data$Year %in% c(2002, 2022), ]
+
+# Creating the bar chart
+ggplot(bar_data, aes(x = factor(Year), y = PersonsDeaths, fill = factor(Year))) +
+  geom_bar(stat = "identity", width = 0.6, show.legend = FALSE) +
+  labs(
+    title = "Comparison of Alcohol-Specific Deaths (2002 vs. 2022)",
+    x = "Year",
+    y = "Number of Deaths"
+  ) +
+  # Making it look nice
+  scale_fill_manual(values = c("#9B59B6", "#C8A2C8")) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(), # Remove major gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, color = "#8E44AD"), # Purple title
+    axis.title.x = element_text(size = 14, face = "bold", color = "#36013F"), # Purple x-axis label
+    axis.title.y = element_text(size = 14, face = "bold", color = "#36013F"), # Purple y-axis label
+    axis.text.x = element_text(size = 12, color = "#36013F"), # Purple x-axis ticks
+    axis.text.y = element_text(size = 12, color = "#36013F")  # Purple y-axis ticks
+  )
+```
+
+![Graph of Alcohol-Specific Deaths Between two Years](/Users/sophieconnell/Desktop/coding/sophieconnell_psy64222/graphs/Barchart1.png)
+
+#### Graph 3
+
+As shown by my previous visualisation, it is obvious that there has been a major increase, which particularly correlates with the pandemic and the introduction of lockdowns. I decided to take a mean from 2020-2022 and a mean from 2017-2019, to try and show visually the difference in alcoholic deaths in just short difference of time.
+
+``` r
+# Summarize data for the specified year ranges
+summary_data <- data %>%
+  mutate(Period = case_when(
+    Year %in% 2017:2019 ~ "2017-2019",
+    Year %in% 2020:2022 ~ "2020-2022",
+    TRUE ~ NA_character_  # Exclude other years
+  )) %>%
+  filter(!is.na(Period)) %>%
+  group_by(Period) %>%
+  summarise(MeanDeaths = mean(PersonsDeaths))
+
+# Create the bar chart
+ggplot(summary_data, aes(x = Period, y = MeanDeaths, fill = Period)) +
+  geom_bar(stat = "identity", width = 0.6, show.legend = FALSE) +
+  geom_text(aes(label = round(MeanDeaths, 1)), vjust = -0.5, size = 5, color = "black") +
+  labs(
+    title = "Comparison of Mean Alcohol-Specific Deaths: 2017-2019 vs. 2020-2022",
+    x = "Time Period", y = "Mean Deaths"
+  ) +
+  
+  # Make it look nice
+  scale_fill_manual(values = c("2017-2019" = "#FFC0CB", "2020-2022" = "#FF69B4")) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(), # Remove major gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    panel.border = element_rect(color = "black", fill = NA), # Add black border
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, color = "black"), # Black title
+    axis.title.x = element_text(size = 14, face = "bold", color = "black"), # Black x-axis label
+    axis.title.y = element_text(size = 14, face = "bold", color = "black"), # Black y-axis label
+    axis.text.x = element_text(size = 12, color = "black"), # Black x-axis ticks
+    axis.text.y = element_text(size = 12, color = "black")  # Black y-axis ticks
+  )
+```
+
+![Graph of Mean Alcohol-Specific Deaths Between Pre and Post Covid-19](/Users/sophieconnell/Desktop/coding/sophieconnell_psy64222/graphs/Barchart2.png) This shows a clear increase in alcohol-specific deaths during the time of the COVID-19 Pandemic.
+
+## Summary
+
+Alcohol-specific deaths were the highest they have ever been in the past 20 years during 2022. I think an interesting area to next investigate is alcohol consumption during these more recent years and its correlation to months in lockdown.
